@@ -52,27 +52,30 @@ public class BookingService : IBookingService
         return _mapper.Map<List<HallResponseDto>>(available);
     }
 
-    public async Task<BookingResponseDto> CreateBooking(CreateBookingDto dto, CancellationToken ct)
+   public async Task<BookingResponseDto> CreateBooking(CreateBookingDto dto, CancellationToken ct)
+{
+    if (dto.EndTime <= dto.StartTime)
+        throw new InvalidOperationException("EndTime must be after StartTime");
+    if (dto.StartTime < DateTime.UtcNow)
+        throw new InvalidOperationException("Cannot book in the past");
+
+    var hall = await _hallRepository.GetByIdAsync(dto.HallId, ct);
+    if (hall == null)
+        throw new KeyNotFoundException("Hall not found");
+
+    var chosenServices = hall.Services
+        .Where(s => dto.ServiceIds.Contains(s.Id))
+        .ToList();
+    if (chosenServices.Count != dto.ServiceIds.Count)
+        throw new InvalidOperationException("Some services do not belong to this hall");
+
+    await _unitOfWork.BeginTransactionAsync(ct);
+    try
     {
-        if (dto.EndTime <= dto.StartTime)
-            throw new InvalidOperationException("EndTime must be after StartTime");
-        if (dto.StartTime < DateTime.UtcNow)
-            throw new InvalidOperationException("Cannot book in the past");
-
-        var hall = await _hallRepository.GetByIdAsync(dto.HallId, ct);
-        if (hall == null)
-            throw new KeyNotFoundException("Hall not found");
-
         var overlapping = await _bookingRepository
             .GetOverlappingAsync(dto.HallId, dto.StartTime, dto.EndTime, ct);
         if (overlapping.Count > 0)
             throw new InvalidOperationException("Hall is already booked for this time");
-
-        var chosenServices = hall.Services
-            .Where(s => dto.ServiceIds.Contains(s.Id))
-            .ToList();
-        if (chosenServices.Count != dto.ServiceIds.Count)
-            throw new InvalidOperationException("Some services do not belong to this hall");
 
         var hallCost = _pricing.CalculateHallCost(hall.BasePricePerHour, dto.StartTime, dto.EndTime);
         var servicesCost = chosenServices.Sum(s => s.Price);
@@ -92,6 +95,7 @@ public class BookingService : IBookingService
 
         await _bookingRepository.AddAsync(booking, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+        await _unitOfWork.CommitTransactionAsync(ct);
 
         return new BookingResponseDto
         {
@@ -104,4 +108,10 @@ public class BookingService : IBookingService
             Services = _mapper.Map<List<ServiceResponseDto>>(chosenServices)
         };
     }
+    catch
+    {
+        await _unitOfWork.RollbackTransactionAsync(ct);
+        throw;
+    }
+}
 }

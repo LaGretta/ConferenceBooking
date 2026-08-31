@@ -5,7 +5,7 @@ namespace ConferenceBooking.Application.Interfaces.Repository;
 public interface IHallRepository
 {
     Task Add(Hall hall, CancellationToken ct);
-    Task<Hall> GetByIdAsync(int id, CancellationToken ct);
+    Task<Hall?> GetByIdAsync(int id, CancellationToken ct);
     Task<List<Hall>> GetAllAsync(CancellationToken ct);
     void Remove(Hall hall);
     
