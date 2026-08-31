@@ -1,3 +1,4 @@
+using ConferenceBooking.API.Middleware;
 using ConferenceBooking.Application;
 using ConferenceBooking.Infrastructure;
 using ConferenceBooking.Infrastructure.Data;
@@ -16,7 +17,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
+app.UseExceptionHandler();
 
 using (var scope = app.Services.CreateScope())
 {
