@@ -28,7 +28,7 @@ public class BookingServiceTests
             cfg.AddProfile<BookingMapping>();
         }, new LoggerFactory());
         _mapper = config.CreateMapper();
-        
+
         _sut = new BookingService(
             _bookingRepo.Object,
             _hallRepo.Object,

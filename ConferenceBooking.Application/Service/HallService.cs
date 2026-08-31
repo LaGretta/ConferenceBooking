@@ -86,4 +86,17 @@ public class HallService : IHallService
 
         return _mapper.Map<ServiceResponseDto>(service);
     }
+    public async Task<List<HallResponseDto>> GetAll(CancellationToken ct)
+    {
+        var halls = await _hallRepository.GetAllAsync(ct);
+        return _mapper.Map<List<HallResponseDto>>(halls);
+    }
+    public async Task<HallResponseDto> GetById(int id, CancellationToken ct)
+    {
+        var hall = await _hallRepository.GetByIdAsync(id, ct);
+        if (hall == null)
+            throw new KeyNotFoundException("Hall not found");
+
+        return _mapper.Map<HallResponseDto>(hall);
+    }
 }

@@ -31,4 +31,10 @@ public class HallsController : ControllerBase
     [HttpPost("{id}/services")]
     public async Task<IActionResult> AddService(int id, CreateServiceDto dto, CancellationToken ct) =>
         Ok(await _hallService.AddService(id, dto, ct));
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct) =>
+        Ok(await _hallService.GetAll(ct));
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken ct) =>
+        Ok(await _hallService.GetById(id, ct));
 }

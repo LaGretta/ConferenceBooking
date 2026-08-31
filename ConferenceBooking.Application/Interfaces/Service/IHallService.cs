@@ -8,4 +8,6 @@ public interface IHallService
     Task<HallResponseDto> Update(int id, UpdateHallDto dto, CancellationToken ct);
     Task Delete(int id, CancellationToken ct);
     Task<ServiceResponseDto> AddService(int hallId, CreateServiceDto dto, CancellationToken ct);
+    Task<List<HallResponseDto>> GetAll(CancellationToken ct);
+    Task<HallResponseDto> GetById(int id, CancellationToken ct);
 }
