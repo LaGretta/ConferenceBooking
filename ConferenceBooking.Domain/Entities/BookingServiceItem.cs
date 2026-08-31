@@ -1,6 +1,6 @@
 ﻿namespace ConferenceBooking.Domain.Entities;
 
-public class BookingService
+public class BookingServiceItem
 {
     public int Id { get; set; }
     

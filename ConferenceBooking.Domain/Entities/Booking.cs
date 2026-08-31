@@ -12,5 +12,5 @@ public class Booking
     public decimal TotalCost { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    public List<BookingService> BookingServices { get; set; } = new();
+    public List<BookingServiceItem> BookingServices { get; set; } = new();
 }
