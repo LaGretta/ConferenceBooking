@@ -15,6 +15,8 @@ public static class DependencyInjection
         services.AddScoped<IBookingService, BookingService>();
 
         services.AddSingleton<PricingCalculator>();
+        
+        services.AddScoped<IReportService, ReportService>();
 
         services.AddAutoMapper(cfg 
             => cfg.AddMaps(Assembly.GetExecutingAssembly()));
